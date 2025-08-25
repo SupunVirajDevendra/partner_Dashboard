@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
+import { apiService } from '@/services/api'
 
 interface User {
   id: string
@@ -26,7 +27,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Check if user is logged in on app start
     const savedUser = localStorage.getItem('user')
-    if (savedUser) {
+    const token = localStorage.getItem('authToken')
+    
+    if (savedUser && token) {
       setUser(JSON.parse(savedUser))
     }
     setIsLoading(false)
@@ -35,31 +38,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true)
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // For demo purposes, accept any email/password
-    if (email && password) {
-      const userData = {
-        id: '1',
-        email: email,
-        name: email.split('@')[0]
+    try {
+      // Demo login with specific credentials
+      if (email === 'admin@gmail.com' && password === 'admin123') {
+        const userData = {
+          id: '1',
+          email: email,
+          name: 'Admin User'
+        }
+        
+        setUser(userData)
+        localStorage.setItem('user', JSON.stringify(userData))
+        localStorage.setItem('authToken', 'demo-token-' + Date.now())
+        setIsLoading(false)
+        return true
       }
       
-      setUser(userData)
-      localStorage.setItem('user', JSON.stringify(userData))
+      // Try API login if demo credentials don't match
+      const response = await apiService.login(email, password)
+      setUser(response.user)
+      localStorage.setItem('user', JSON.stringify(response.user))
       setIsLoading(false)
       return true
+    } catch (error) {
+      console.error('Login failed:', error)
+      setIsLoading(false)
+      return false
     }
-    
-    setIsLoading(false)
-    return false
   }
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem('user')
-    router.push('/login')
+  const logout = async () => {
+    try {
+      await apiService.logout()
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      setUser(null)
+      localStorage.removeItem('user')
+      localStorage.removeItem('authToken')
+      router.push('/login')
+    }
   }
 
   return (

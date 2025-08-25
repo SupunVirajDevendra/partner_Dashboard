@@ -40,9 +40,9 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <Card className="border-0 shadow-lg">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
+            <CardTitle className="text-2xl font-bold">Welcome to MerchantHub</CardTitle>
             <CardDescription>
-              Enter your credentials to access your dashboard
+              Enter your credentials to access MerchantHub dashboard
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -109,12 +109,6 @@ export default function LoginPage() {
                     Remember me
                   </Label>
                 </div>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-primary hover:underline"
-                >
-                  Forgot password?
-                </Link>
               </div>
 
               <Button 
